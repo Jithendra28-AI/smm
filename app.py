@@ -34,13 +34,15 @@ if user_input and st.button("🔍 Ask GPT"):
         st.error(f"OpenAI Error: {e}")
 
 # 💼 Define BOP service IDs (replace with your real IDs from BestOfPanel)
+# Display name: (service ID, rate per 1K)
 services = {
-    "Instagram Likes [BOP]": 1010,
-    "Instagram Followers [BOP]": 1020,
-    "YouTube Views [BOP]": 1030,
-    "TikTok Likes [BOP]": 1040,
-    "Instagram Reels Views [BOP]": 1050
+    "Instagram Likes [BOP] - ₹0.75/1K": (1010, 0.75),
+    "Instagram Followers [BOP] - ₹1.50/1K": (1020, 1.50),
+    "YouTube Views [BOP] - ₹0.60/1K": (1030, 0.60),
+    "TikTok Likes [BOP] - ₹0.80/1K": (1040, 0.80),
+    "Instagram Reels Views [BOP] - ₹0.70/1K": (1050, 0.70)
 }
+
 
 # 📦 Order Placement
 st.subheader("📦 Place an Order")
