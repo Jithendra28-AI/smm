@@ -37,10 +37,13 @@ st.subheader("📦 Place an Order")
 
 # You should replace these with real service IDs from your JAP account
 services = {
-    "Instagram Followers (Real)": 101,  # replace with actual ID from your panel
-    "YouTube Views": 102,
-    "TikTok Likes": 103
+    "Instagram Likes [Fast & Cheap]": 8219,
+    "Instagram Likes [Cheap Option 2]": 8650,
+    "Instagram Likes [Non-Drop, Fast]": 7787,
+    "Instagram Followers [USA, Refill 30D]": 7514,
+    "Instagram Likes [USA]": 7515
 }
+
 
 service_name = st.selectbox("Select Service", list(services.keys()))
 service_id = services[service_name]
