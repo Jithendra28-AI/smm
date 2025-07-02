@@ -4,35 +4,41 @@ import pandas as pd
 import requests
 from datetime import datetime
 
-# Setup
-st.set_page_config(page_title="SMM Panel (BOP)", layout="centered")
-st.title("🚀 AI-Powered SMM Panel - BestOfPanel")
+# 🛠️ Setup
+st.set_page_config(page_title="SMM Panel - BOP", layout="centered")
+st.title("🚀 AI-Powered SMM Panel (BestOfPanel API)")
 
-# Load API keys from secrets
+# ✅ Load API keys from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 bop_api_key = st.secrets["SMM_API_KEY"]
 bop_api_url = "https://bestofpanel.com/api/v2"
 
-# Track orders in memory
+# 🧪 Debug print to confirm API key is loaded (only shows partial for safety)
+try:
+    st.write("🔐 API key loaded (partial):", bop_api_key[:4] + "..." + bop_api_key[-4:])
+except Exception as e:
+    st.error("❌ API key not loaded from secrets.toml!")
+
+# 💾 Order session
 if "orders" not in st.session_state:
     st.session_state.orders = []
 
-# Step 1: GPT Service Suggestion
-st.subheader("🧠 Ask GPT to Suggest a Service")
-user_input = st.text_input("Describe what you want:", placeholder="e.g. I want 500 Instagram followers")
+# 🧠 GPT Service Suggestion
+st.subheader("🧠 Ask GPT for Suggestions")
+user_input = st.text_input("Describe what you want:", placeholder="e.g. I want 1000 followers")
 
 if user_input and st.button("🔍 Ask GPT"):
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": f"What service matches this request: {user_input}? Choose from Instagram Likes, Followers, YouTube Views, etc."}]
+            messages=[{"role": "user", "content": f"What SMM service fits this: '{user_input}'?"}]
         )
         suggestion = response['choices'][0]['message']['content']
         st.success(f"🤖 GPT Suggests: {suggestion}")
     except Exception as e:
         st.error(f"OpenAI Error: {e}")
 
-# Step 2: Define Services (Update service IDs with real ones from BOP)
+# 📦 Define services with price (update IDs with real ones from your BOP panel)
 services = {
     "Instagram Likes - ₹0.75/1K": (1010, 0.75),
     "Instagram Followers - ₹1.50/1K": (1020, 1.50),
@@ -41,18 +47,16 @@ services = {
     "Instagram Reels Views - ₹0.70/1K": (1050, 0.70)
 }
 
-# Step 3: Order Form
+# 🧾 Order form
 st.subheader("📦 Place an Order")
-service_display = st.selectbox("Select Service (with price)", list(services.keys()))
+service_display = st.selectbox("Choose Service", list(services.keys()))
 service_id, rate = services[service_display]
 link = st.text_input("Target Link / Username")
 quantity = st.slider("Quantity", 10, 10000, 100)
-
-# Show estimated cost
 total_price = (quantity / 1000) * rate
 st.markdown(f"💰 **Estimated Cost**: ₹{total_price:.2f}")
 
-# Step 4: Submit Order to BestOfPanel
+# ✅ Place order via BOP
 if st.button("✅ Submit Order"):
     if not link:
         st.warning("Please enter a valid link or username.")
@@ -64,6 +68,7 @@ if st.button("✅ Submit Order"):
             "link": link,
             "quantity": quantity
         }
+
         try:
             response = requests.post(bop_api_url, data=payload)
             result = response.json()
@@ -78,13 +83,13 @@ if st.button("✅ Submit Order"):
                     "Order ID": order_id,
                     "Cost (₹)": round(total_price, 2)
                 })
-                st.success(f"✅ Order Placed! Order ID: {order_id} | Cost: ₹{total_price:.2f}")
+                st.success(f"✅ Order Placed! ID: {order_id} | Cost: ₹{total_price:.2f}")
             else:
                 st.error(f"❌ Error from BOP: {result}")
         except Exception as e:
-            st.error(f"❌ API Error: {e}")
+            st.error(f"❌ API Call Failed: {e}")
 
-# Step 5: Order History
+# 📊 Order History
 st.subheader("📊 Order History")
 df = pd.DataFrame(st.session_state.orders)
 if not df.empty:
