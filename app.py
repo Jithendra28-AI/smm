@@ -4,24 +4,25 @@ import pandas as pd
 import requests
 from datetime import datetime
 
-# Streamlit page config
-st.set_page_config(page_title="SMM Panel", layout="centered")
-st.title("🚀 AI-Powered SMM Panel with JAP API")
+# Streamlit setup
+st.set_page_config(page_title="SMM Panel (BOP)", layout="centered")
+st.title("🚀 AI-Powered SMM Panel (BestOfPanel API)")
 
-# API keys from secrets
+# Load secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
-jap_api_key = st.secrets["SMM_API_KEY"]
-jap_api_url = "https://justanotherpanel.com/api/v2"
+bop_api_key = st.secrets["SMM_API_KEY"]
+bop_api_url = "https://bestofpanel.com/api/v2"  # Replace if different
 
-# Order history (in session memory)
+# Session state to track orders
 if "orders" not in st.session_state:
     st.session_state.orders = []
 
-# Step 1: AI Suggestion
-st.subheader("🧠 Ask AI to Suggest Service")
-user_input = st.text_input("What do you need?", placeholder="I want 1000 followers on Instagram")
+# 🧠 GPT Service Suggestion
+st.subheader("🧠 Ask GPT to Suggest a Service")
+user_input = st.text_input("What do you want?", placeholder="e.g. I want 500 Instagram followers fast")
+
 if user_input and st.button("🔍 Ask GPT"):
-    prompt = f"User request: {user_input}\nWhat SMM service fits best? Choose from: Instagram Followers, YouTube Views, TikTok Likes"
+    prompt = f"User request: {user_input}\nWhich SMM service fits best? Options: Instagram Likes, Instagram Followers, YouTube Views, TikTok Likes"
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
@@ -32,20 +33,18 @@ if user_input and st.button("🔍 Ask GPT"):
     except Exception as e:
         st.error(f"OpenAI Error: {e}")
 
-# Step 2: Place Order
-st.subheader("📦 Place an Order")
-
-# You should replace these with real service IDs from your JAP account
+# 💼 Define BOP service IDs (replace with your real IDs from BestOfPanel)
 services = {
-    "Instagram Likes [Fast & Cheap]": 8219,
-    "Instagram Likes [Cheap Option 2]": 8650,
-    "Instagram Likes [Non-Drop, Fast]": 7787,
-    "Instagram Followers [USA, Refill 30D]": 7514,
-    "Instagram Likes [USA]": 7515
+    "Instagram Likes [BOP]": 1010,
+    "Instagram Followers [BOP]": 1020,
+    "YouTube Views [BOP]": 1030,
+    "TikTok Likes [BOP]": 1040,
+    "Instagram Reels Views [BOP]": 1050
 }
 
-
-service_name = st.selectbox("Select Service", list(services.keys()))
+# 📦 Order Placement
+st.subheader("📦 Place an Order")
+service_name = st.selectbox("Choose Service", list(services.keys()))
 service_id = services[service_name]
 link = st.text_input("Target Link / Username")
 quantity = st.slider("Quantity", 10, 10000, 100)
@@ -55,14 +54,14 @@ if st.button("✅ Submit Order"):
         st.warning("Please enter a valid link or username.")
     else:
         payload = {
-            "key": jap_api_key,
+            "key": bop_api_key,
             "action": "add",
             "service": service_id,
             "link": link,
             "quantity": quantity
         }
         try:
-            res = requests.post(jap_api_url, data=payload)
+            res = requests.post(bop_api_url, data=payload)
             result = res.json()
             if "order" in result:
                 order_id = result["order"]
@@ -76,11 +75,11 @@ if st.button("✅ Submit Order"):
                 })
                 st.success(f"✅ Order Placed! Order ID: {order_id}")
             else:
-                st.error(f"❌ Error from JAP: {result}")
+                st.error(f"❌ Error from BOP: {result}")
         except Exception as e:
             st.error(f"❌ API Error: {e}")
 
-# Step 3: Order History
+# 📊 Show Order History
 st.subheader("📊 Order History")
 df = pd.DataFrame(st.session_state.orders)
 if not df.empty:
