@@ -3,15 +3,11 @@ import openai
 import pandas as pd
 from datetime import datetime
 
+# Page setup
 st.set_page_config(page_title="SMM Panel", layout="centered")
 st.title("🚀 AI-Powered SMM Panel")
 
-# Password Gate
-password = st.text_input("Enter Access Code", type="password")
-if password != "letmein":  # Change this!
-    st.stop()
-
-# Set API key
+# OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Dummy service list
@@ -21,7 +17,7 @@ services = {
     "TikTok Likes": 103,
 }
 
-# Order log
+# Session state for orders
 if "orders" not in st.session_state:
     st.session_state.orders = []
 
